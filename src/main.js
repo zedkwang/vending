@@ -94,10 +94,15 @@ function renderHome() {
         <span class="prototype-badge">UX PROTOTYPE</span>
       </header>
 
-      <section class="intro" id="top">
-        <p class="eyebrow">CHOOSE A THEME, PULL THE LEVER</p>
-        <h1>좋아하는 테마의 자판기에서<br /><em>오늘의 음료</em>를 꺼내세요.</h1>
-        <p class="intro__description">자판기 선택은 화면 테마에만 적용됩니다. 모든 자판기는 동일한 상품 풀과 당첨 확률을 공유합니다.</p>
+      <section class="hero-banner" id="top" aria-label="캐릭터 드링크 자판기 쿠지 배너">
+        <img class="hero-banner__image" src="${image1}" alt="캐릭터 드링크 자판기 테마 이미지" />
+        <div class="hero-banner__shade"></div>
+        <div class="hero-banner__content">
+          <p class="eyebrow">CHARACTER DRINK VENDING KUJI</p>
+          <h1>THEME YOUR<br /><em>LUCKY DRINK.</em></h1>
+          <p>원하는 테마를 고르고 레버를 당겨<br />오늘의 음료를 꺼내세요.</p>
+        </div>
+        <span class="hero-banner__note">ALL MACHINES · ONE PRIZE BOX</span>
       </section>
 
       <section class="dashboard" aria-label="쿠지 잔여 재고">
