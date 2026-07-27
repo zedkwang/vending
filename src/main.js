@@ -164,6 +164,7 @@ function modalInnerMarkup() {
   const isResolving = ['brewing', 'dropping'].includes(state.phase)
   const isReveal = state.phase === 'reveal'
   const allRevealed = state.results.length > 0 && state.revealed.size === state.results.length
+  const hasScrollableResults = state.results.length > 5
   const canClose = isReady
   const phaseText = isReady
     ? '레버를 끝까지 당기면 추첨이 시작됩니다.'
@@ -188,7 +189,10 @@ function modalInnerMarkup() {
         <div class="vending-machine__works" aria-hidden="true"><span></span><span></span><span></span></div>
         <div class="vending-machine__bin" aria-live="polite">
           <p class="bin-empty" ${state.droppedCount ? 'hidden' : ''}>음료가 이곳으로 배출됩니다</p>
-          <div class="drink-stack">${state.results.map(drinkMarkup).join('')}</div>
+          <div class="drink-stack${hasScrollableResults ? ' is-scrollable' : ''}"
+            aria-label="${hasScrollableResults ? '배출된 음료. 좌우로 스크롤해 모두 확인하세요.' : '배출된 음료'}">
+            ${state.results.map(drinkMarkup).join('')}
+          </div>
         </div>
       </section>
 
