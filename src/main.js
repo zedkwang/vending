@@ -4,6 +4,7 @@ import image2 from '../image_2.webp'
 import image3 from '../image_3.webp'
 import image4 from '../image_4.webp'
 import image5 from '../image_5.webp'
+import bannerImage from '../image1111.png'
 import { InsufficientStockError, KujiBox, Prize } from './kujiEngine.js'
 
 const MACHINES = [
@@ -95,7 +96,7 @@ function renderHome() {
       </header>
 
       <section class="hero-banner" id="top" aria-label="캐릭터 드링크 자판기 쿠지 배너">
-        <img class="hero-banner__image" src="${image1}" alt="캐릭터 드링크 자판기 테마 이미지" />
+        <img class="hero-banner__image" src="${bannerImage}" alt="캐릭터 드링크 자판기 배너 이미지" />
         <div class="hero-banner__shade"></div>
         <div class="hero-banner__content">
           <p class="eyebrow">CHARACTER DRINK VENDING KUJI</p>
