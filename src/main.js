@@ -148,7 +148,11 @@ function resultCardMarkup(result, index) {
     </article>`
 }
 
-function renderModal() {
+// 모달 내부 컨텐츠만 반환한다 — 바깥 오버레이(.modal-layer)·카드(.machine-modal)
+// 엘리먼트 자체는 여기 포함하지 않는다. 연차 선택·추첨 등 상태 변화 때마다
+// 이 안쪽만 갈아끼워야 바깥 래퍼의 CSS 진입 애니메이션이 매번 재생되어
+// 모달 전체가 깜빡이는 문제(opacity/translate 리셋)를 피할 수 있다.
+function modalInnerMarkup() {
   const machine = state.machine
   const isReady = state.phase === 'ready'
   const isResolving = ['brewing', 'dropping'].includes(state.phase)
@@ -166,53 +170,84 @@ function renderModal() {
           : '음료를 탭해서 결과를 확인하세요.'
 
   return `
+    <header class="modal-header">
+      <div><p class="eyebrow">SELECTED MACHINE</p><h2 id="machine-modal-title">${machine.title}</h2></div>
+      <button type="button" class="icon-button" data-close-modal ${canClose ? '' : 'disabled'} aria-label="자판기 선택 화면으로 돌아가기">×</button>
+    </header>
+
+    <div class="machine-stage ${isResolving ? 'is-running' : ''} ${isReveal ? 'is-reveal' : ''}">
+      <section class="vending-machine" aria-label="${machine.title}">
+        <div class="vending-machine__top"><span>CHARACTER DRINK</span><b>${machine.title}</b><i></i></div>
+        <div class="vending-machine__screen"><img src="${machine.image}" alt="${machine.title} 메인 이미지" /></div>
+        <div class="vending-machine__works" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="vending-machine__bin" aria-live="polite">
+          <p class="bin-empty" ${state.droppedCount ? 'hidden' : ''}>음료가 이곳으로 배출됩니다</p>
+          <div class="drink-stack">${state.results.map(drinkMarkup).join('')}</div>
+        </div>
+      </section>
+
+      <aside class="play-panel">
+        <div class="play-step"><span>STEP 02</span><strong>연차 선택</strong></div>
+        <div class="draw-counts" role="group" aria-label="연차 선택">${drawCountControls()}</div>
+        <p class="lever-help">${phaseText}</p>
+        <button type="button" class="lever-control" data-lever ${isReady ? '' : 'disabled'} aria-label="레버를 아래로 당기기">
+          <span class="lever-control__track"><span class="lever-control__fill"></span></span>
+          <span class="lever-control__handle"><i></i></span>
+          <strong>당기기</strong>
+          <small>끝까지 아래로</small>
+        </button>
+        <p class="fairness-note">당기는 속도·세기와 결과는 무관합니다.</p>
+      </aside>
+    </div>
+
+    <section class="reveal-area" ${isReveal ? '' : 'hidden'}>
+      <div class="reveal-area__header">
+        <div><p class="eyebrow">STEP 03</p><h3>${state.drawCount}개의 음료가 도착했어요</h3></div>
+        ${state.drawCount > 1 ? '<button type="button" class="reveal-all" data-reveal-all>모두 공개</button>' : ''}
+      </div>
+      <p class="reveal-guidance" data-reveal-guidance>${allRevealed ? '결과가 모두 공개되었습니다.' : '음료를 탭하면 등급 글로우와 함께 결과가 공개됩니다.'}</p>
+      <div class="result-grid count-${state.results.length}">${state.results.map(resultCardMarkup).join('')}</div>
+      ${allRevealed ? '<button class="finish-button" type="button" data-finish-session>확인 완료</button>' : ''}
+    </section>
+
+    ${state.notice ? `<p class="modal-notice" role="alert">${state.notice}</p>` : ''}
+    ${!canClose && !isReveal ? '<p class="locked-note">추첨이 시작된 뒤에는 자판기를 변경할 수 없습니다.</p>' : ''}
+  `
+}
+
+function renderModal() {
+  const machine = state.machine
+  return `
     <div class="modal-layer" data-modal-backdrop>
       <section class="machine-modal" role="dialog" aria-modal="true" aria-labelledby="machine-modal-title"
         style="--accent:${machine.accent};--machine-glow:${machine.glow}">
-        <header class="modal-header">
-          <div><p class="eyebrow">SELECTED MACHINE</p><h2 id="machine-modal-title">${machine.title}</h2></div>
-          <button type="button" class="icon-button" data-close-modal ${canClose ? '' : 'disabled'} aria-label="자판기 선택 화면으로 돌아가기">×</button>
-        </header>
-
-        <div class="machine-stage ${isResolving ? 'is-running' : ''} ${isReveal ? 'is-reveal' : ''}">
-          <section class="vending-machine" aria-label="${machine.title}">
-            <div class="vending-machine__top"><span>CHARACTER DRINK</span><b>${machine.title}</b><i></i></div>
-            <div class="vending-machine__screen"><img src="${machine.image}" alt="${machine.title} 메인 이미지" /></div>
-            <div class="vending-machine__works" aria-hidden="true"><span></span><span></span><span></span></div>
-            <div class="vending-machine__bin" aria-live="polite">
-              <p class="bin-empty" ${state.droppedCount ? 'hidden' : ''}>음료가 이곳으로 배출됩니다</p>
-              <div class="drink-stack">${state.results.map(drinkMarkup).join('')}</div>
-            </div>
-          </section>
-
-          <aside class="play-panel">
-            <div class="play-step"><span>STEP 02</span><strong>연차 선택</strong></div>
-            <div class="draw-counts" role="group" aria-label="연차 선택">${drawCountControls()}</div>
-            <p class="lever-help">${phaseText}</p>
-            <button type="button" class="lever-control" data-lever ${isReady ? '' : 'disabled'} aria-label="레버를 아래로 당기기">
-              <span class="lever-control__track"><span class="lever-control__fill"></span></span>
-              <span class="lever-control__handle"><i></i></span>
-              <strong>당기기</strong>
-              <small>끝까지 아래로</small>
-            </button>
-            <p class="fairness-note">당기는 속도·세기와 결과는 무관합니다.</p>
-          </aside>
-        </div>
-
-        <section class="reveal-area" ${isReveal ? '' : 'hidden'}>
-          <div class="reveal-area__header">
-            <div><p class="eyebrow">STEP 03</p><h3>${state.drawCount}개의 음료가 도착했어요</h3></div>
-            ${state.drawCount > 1 ? '<button type="button" class="reveal-all" data-reveal-all>모두 공개</button>' : ''}
-          </div>
-          <p class="reveal-guidance" data-reveal-guidance>${allRevealed ? '결과가 모두 공개되었습니다.' : '음료를 탭하면 등급 글로우와 함께 결과가 공개됩니다.'}</p>
-          <div class="result-grid count-${state.results.length}">${state.results.map(resultCardMarkup).join('')}</div>
-          ${allRevealed ? '<button class="finish-button" type="button" data-finish-session>확인 완료</button>' : ''}
-        </section>
-
-        ${state.notice ? `<p class="modal-notice" role="alert">${state.notice}</p>` : ''}
-        ${!canClose && !isReveal ? '<p class="locked-note">추첨이 시작된 뒤에는 자판기를 변경할 수 없습니다.</p>' : ''}
+        ${modalInnerMarkup()}
       </section>
     </div>`
+}
+
+// 모달이 이미 열려 있는 상태에서의 상태 변화(연차 선택, 추첨 진행 단계 전환)는
+// 이 함수로 내부만 갱신한다. render()를 다시 부르면 .modal-layer/.machine-modal
+// 엘리먼트 자체가 새로 생성되어 진입 애니메이션이 재생되고 모달이 깜빡인다.
+function refreshModalInner() {
+  const modalEl = app.querySelector('.machine-modal')
+  if (!modalEl) return
+  modalEl.innerHTML = modalInnerMarkup()
+  bindModalEvents()
+}
+
+function bindModalEvents() {
+  app.querySelector('[data-close-modal]')?.addEventListener('click', closeModal)
+  app.querySelectorAll('[data-draw-count]').forEach((button) => {
+    button.addEventListener('click', () => setDrawCount(Number(button.dataset.drawCount)))
+  })
+  const lever = app.querySelector('[data-lever]')
+  if (lever) installLever(lever)
+  app.querySelectorAll('[data-result-index]').forEach((button) => {
+    button.addEventListener('click', () => revealResult(Number(button.dataset.resultIndex)))
+  })
+  app.querySelector('[data-reveal-all]')?.addEventListener('click', revealAll)
+  app.querySelector('[data-finish-session]')?.addEventListener('click', finishSession)
 }
 
 function render() {
@@ -244,7 +279,7 @@ function setDrawCount(count) {
   if (state.phase !== 'ready' || count > box.totalRemaining) return
   state.drawCount = count
   state.notice = ''
-  render()
+  refreshModalInner()
 }
 
 function startDraw() {
@@ -261,7 +296,7 @@ function startDraw() {
     }))
   } catch (error) {
     state.notice = error instanceof InsufficientStockError ? '잔여 재고가 부족해 선택한 연차를 시작할 수 없습니다.' : '추첨을 시작하지 못했습니다. 다시 시도해 주세요.'
-    render()
+    refreshModalInner()
     return
   }
 
@@ -269,11 +304,11 @@ function startDraw() {
   state.droppedCount = 0
   state.revealed = new Set()
   state.notice = ''
-  render()
+  refreshModalInner()
 
   schedule(() => {
     state.phase = 'dropping'
-    render()
+    refreshModalInner()
     dropNextDrink(0)
   }, 1050)
 }
@@ -294,9 +329,7 @@ function dropNextDrink(index) {
 
   schedule(() => {
     state.phase = 'reveal'
-    const revealArea = app.querySelector('.reveal-area')
-    revealArea?.removeAttribute('hidden')
-    app.querySelector('.locked-note')?.remove()
+    refreshModalInner()
   }, 450)
 }
 
@@ -334,6 +367,8 @@ function updateRevealCompletion() {
   if (state.revealed.size !== state.results.length) return
   const guidance = app.querySelector('[data-reveal-guidance]')
   if (guidance) guidance.textContent = '결과가 모두 공개되었습니다.'
+  const leverHelp = app.querySelector('.lever-help')
+  if (leverHelp) leverHelp.textContent = '모든 결과를 확인했습니다.'
   if (!app.querySelector('[data-finish-session]')) {
     app.querySelector('.reveal-area')?.insertAdjacentHTML('beforeend', '<button class="finish-button" type="button" data-finish-session>확인 완료</button>')
     app.querySelector('[data-finish-session]')?.addEventListener('click', finishSession)
@@ -388,19 +423,10 @@ function bindEvents() {
   app.querySelectorAll('[data-select-machine]').forEach((button) => {
     button.addEventListener('click', () => selectMachine(button.dataset.selectMachine))
   })
-  app.querySelectorAll('[data-draw-count]').forEach((button) => {
-    button.addEventListener('click', () => setDrawCount(Number(button.dataset.drawCount)))
-  })
-  app.querySelector('[data-close-modal]')?.addEventListener('click', closeModal)
   app.querySelector('[data-modal-backdrop]')?.addEventListener('click', (event) => {
     if (event.target === event.currentTarget) closeModal()
   })
-  app.querySelector('[data-lever]') && installLever(app.querySelector('[data-lever]'))
-  app.querySelectorAll('[data-result-index]').forEach((button) => {
-    button.addEventListener('click', () => revealResult(Number(button.dataset.resultIndex)))
-  })
-  app.querySelector('[data-reveal-all]')?.addEventListener('click', revealAll)
-  app.querySelector('[data-finish-session]')?.addEventListener('click', finishSession)
+  bindModalEvents()
 }
 
 render()
