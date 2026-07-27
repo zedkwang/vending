@@ -189,10 +189,12 @@ function modalInnerMarkup() {
         <div class="vending-machine__works" aria-hidden="true"><span></span><span></span><span></span></div>
         <div class="vending-machine__bin" aria-live="polite">
           <p class="bin-empty" ${state.droppedCount ? 'hidden' : ''}>음료가 이곳으로 배출됩니다</p>
-          <div class="drink-stack${hasScrollableResults ? ' is-scrollable' : ''}"
+          ${hasScrollableResults ? '<button class="bin-scroll-control bin-scroll-control--previous" type="button" data-scroll-drinks="-1" aria-controls="dispensed-drinks" aria-label="이전 음료 보기">‹</button>' : ''}
+          <div id="dispensed-drinks" class="drink-stack${hasScrollableResults ? ' is-scrollable' : ''}"
             aria-label="${hasScrollableResults ? '배출된 음료. 좌우로 스크롤해 모두 확인하세요.' : '배출된 음료'}">
             ${state.results.map(drinkMarkup).join('')}
           </div>
+          ${hasScrollableResults ? '<button class="bin-scroll-control bin-scroll-control--next" type="button" data-scroll-drinks="1" aria-controls="dispensed-drinks" aria-label="다음 음료 보기">›</button>' : ''}
         </div>
       </section>
 
@@ -255,6 +257,14 @@ function bindModalEvents() {
   if (lever) installLever(lever)
   app.querySelectorAll('[data-result-index]').forEach((button) => {
     button.addEventListener('click', () => revealResult(Number(button.dataset.resultIndex)))
+  })
+  app.querySelectorAll('[data-scroll-drinks]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const drinkStack = app.querySelector('#dispensed-drinks')
+      if (!drinkStack) return
+      const direction = Number(button.dataset.scrollDrinks)
+      drinkStack.scrollBy({ left: direction * Math.max(80, drinkStack.clientWidth * 0.65), behavior: 'smooth' })
+    })
   })
   app.querySelector('[data-reveal-all]')?.addEventListener('click', revealAll)
   app.querySelector('[data-finish-session]')?.addEventListener('click', finishSession)
