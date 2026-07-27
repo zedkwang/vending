@@ -99,8 +99,8 @@ function renderHome() {
         <div class="hero-banner__shade"></div>
         <div class="hero-banner__content">
           <p class="eyebrow">CHARACTER DRINK VENDING KUJI</p>
-          <h1>THEME YOUR<br /><em>LUCKY DRINK.</em></h1>
-          <p>원하는 테마를 고르고 레버를 당겨<br />오늘의 음료를 꺼내세요.</p>
+          <h1>CHOOSE YOUR<br /><em>CHARACTER.</em></h1>
+          <p>원하는 캐릭터를 고르고 레버를 당겨<br />오늘의 음료를 획득하세요.</p>
         </div>
         <span class="hero-banner__note">ALL MACHINES · ONE PRIZE BOX</span>
       </section>
