@@ -1,0 +1,16 @@
+{
+  "name": "potion-vending-kuji",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "npm run build && wrangler pages deploy dist --project-name=vending"
+  },
+  "devDependencies": {
+    "vite": "^8.1.1",
+    "wrangler": "^4.114.0"
+  }
+}
