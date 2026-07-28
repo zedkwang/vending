@@ -80,7 +80,9 @@ function machineCard(machine) {
       data-select-machine="${machine.id}" style="--accent:${machine.accent};--machine-glow:${machine.glow}">
       <span class="machine-card__title">${machine.title}</span>
       <span class="machine-card__screen"><img src="${machine.image}" alt="${machine.title} 테마 이미지" /></span>
+      <span class="machine-card__controls" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
       <span class="machine-card__bin" aria-hidden="true"><i></i><i></i></span>
+      <span class="machine-card__base" aria-hidden="true"><i></i><i></i></span>
       <span class="machine-card__select">선택하기 <b aria-hidden="true">→</b></span>
     </button>`
 }
