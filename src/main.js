@@ -186,6 +186,11 @@ function modalInnerMarkup() {
       <section class="vending-machine" aria-label="${machine.title}">
         <div class="vending-machine__top"><span>CHARACTER DRINK</span><b>${machine.title}</b><i></i></div>
         <div class="vending-machine__screen"><img src="${machine.image}" alt="${machine.title} 메인 이미지" /></div>
+        <div class="vending-machine__controls" aria-hidden="true">
+          <span class="vending-machine__selection"><i></i><i></i><i></i><i></i></span>
+          <span class="vending-machine__coin"><i></i></span>
+          <span class="vending-machine__return"></span>
+        </div>
         <div class="vending-machine__works" aria-hidden="true"><span></span><span></span><span></span></div>
         <div class="vending-machine__bin" aria-live="polite">
           <p class="bin-empty" ${state.droppedCount ? 'hidden' : ''}>음료가 이곳으로 배출됩니다</p>
@@ -196,6 +201,7 @@ function modalInnerMarkup() {
           </div>
           ${hasScrollableResults ? '<button class="bin-scroll-control bin-scroll-control--next" type="button" data-scroll-drinks="1" aria-controls="dispensed-drinks" aria-label="다음 음료 보기">›</button>' : ''}
         </div>
+        <div class="vending-machine__base" aria-hidden="true"><i></i><i></i></div>
       </section>
 
       <aside class="play-panel">
